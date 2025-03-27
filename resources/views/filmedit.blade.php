@@ -93,7 +93,7 @@
 
             <!-- Boutons -->
             <div class="flex space-x-4">
-                <button type="submit" onclick="window.history.back();" class="text-black border border-black px-4 py-2">Mettre à jour</button>
+                <button type="submit"  class="text-black border border-black px-4 py-2">Mettre à jour</button>
             </div>
         </form>
     </div>

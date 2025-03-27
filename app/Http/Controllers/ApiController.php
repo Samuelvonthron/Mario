@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -9,38 +10,68 @@ use Illuminate\Support\Facades\Log;
 
 class ApiController extends Controller
 {
-    public function getFilms()
+
+    private $apiBaseUrl;
+
+    public function __construct()
     {
-        $apiurl = 'http://localhost:8080/toad/film/all';
-        
-        // Utilisation de file_get_contents pour récupérer les données
-        $response = file_get_contents($apiurl);
+        $this->apiBaseUrl = env('API_BASE_URL');
+    }
 
-        // Vérification si la requête a réussi et décodage du JSON
-        if ($response !== false) {
-            $films = json_decode($response, true); // Décoder la réponse JSON
+    public function getFilms(Request $request)
+{
+    $search = $request->input('search');
+    $filter = $request->input('filter');
 
-            // Retourner la vue avec les données des films
-            return view('film', compact('films'));
+    // Récupération des films depuis l'API
+    $response = Http::get("{$this->apiBaseUrl}/film/all");
+
+    if ($response->successful()) {
+        $films = $response->json();
+
+        // Appliquer la recherche si un mot-clé est entré
+        if ($search) {
+            $films = array_filter($films, function ($film) use ($search) {
+                return stripos($film['title'], $search) !== false;
+            });
         }
 
-        // Gestion d'erreur si l'appel échoue
-        return response()->json(['error' => 'Impossible de récupérer les films'], 500);
+        // Appliquer les filtres si sélectionnés
+        if ($filter) {
+            $films = array_filter($films, function ($film) use ($filter, $search) {
+                switch ($filter) {
+                    case 'genre':
+                        return isset($film['genre']) && stripos($film['genre'], $search) !== false;
+                    case 'epoque':
+                        return isset($film['releaseYear']) && stripos((string)$film['releaseYear'], $search) !== false;
+                    case 'realisatrice':
+                        return isset($film['director']) && stripos($film['director'], $search) !== false;
+                    default:
+                        return true;
+                }
+            });
+        }
+
+        // Retourner la vue avec les films filtrés
+        return view('film', compact('films'));
     }
+
+    return response()->json(['error' => 'Impossible de récupérer les films'], 500);
+}
+
 
     public function getFilmDetails()
 {
-    $baseApiUrl = 'http://localhost:8080/toad/film';
+    $baseApiUrl =  Http::get("{$this->apiBaseUrl}/film");
     
         // Étape 1 : Récupérer la liste de tous les films pour obtenir les `id`
-        $allFilmsResponse = file_get_contents("{$baseApiUrl}/all");
 
-        if (!$allFilmsResponse) {
+        if (!$baseApiUrl) {
             return redirect()->route('home')->with('error', 'Impossible de récupérer la liste des films.');
         }
 
         // Décodage de la réponse JSON
-        $allFilms = json_decode($allFilmsResponse, true);
+        $allFilms = $baseApiUrl->json();
 
         if (empty($allFilms)) {
             return redirect()->route('home')->with('error', 'Aucun film trouvé.');
@@ -52,10 +83,9 @@ class ApiController extends Controller
         foreach ($allFilms as $film) {
             if (isset($film['id'])) {
                 $id = $film['id'];
-                $detailsResponse = file_get_contents("{$baseApiUrl}/getById?id={$id}");
 
-                if ($detailsResponse) {
-                    $filmDetails = json_decode($detailsResponse, true);
+                if ($baseApiUrl) {
+                    $filmDetails = $baseApiUrl->json();
                     $detailedFilms[] = $filmDetails;
                 } else {
             }
@@ -69,7 +99,7 @@ class ApiController extends Controller
 
     public function showFilmDetail($id)
     {
-        $apiUrl = "http://localhost:8080/toad/film/getById?id={$id}";
+        $apiUrl =  Http::get("{$this->apiBaseUrl}/film/getById?id={$id}");
     
         // Utiliser file_get_contents avec un contexte de gestion d'erreur
         $context = stream_context_create([
@@ -78,11 +108,9 @@ class ApiController extends Controller
             ],
         ]);
     
-        // Récupérer la réponse de l'API
-        $response = file_get_contents($apiUrl, false, $context);
     
         // Décoder la réponse JSON
-        $film = json_decode($response, true);
+        $film = $apiUrl -> json();
     
         return view('detail', ['id' => $id, 'film' => $film]);
     }
@@ -92,17 +120,16 @@ class ApiController extends Controller
 
     public function getFilmEdit()
 {
-    $baseApiUrl = 'http://localhost:8080/toad/film';
+    $baseApiUrl =  Http::get("{$this->apiBaseUrl}/film");
     
         // Étape 1 : Récupérer la liste de tous les films pour obtenir les `id`
-        $allFilmsResponse = file_get_contents("{$baseApiUrl}/all");
 
-        if (!$allFilmsResponse) {
+        if (!$baseApiUrl) {
             return redirect()->route('home')->with('error', 'Impossible de récupérer la liste des films.');
         }
 
         // Décodage de la réponse JSON
-        $allFilms = json_decode($allFilmsResponse, true);
+        $allFilms = $baseApiUrl->json();
 
         if (empty($allFilms)) {
             return redirect()->route('home')->with('error', 'Aucun film trouvé.');
@@ -114,10 +141,9 @@ class ApiController extends Controller
         foreach ($allFilms as $film) {
             if (isset($film['id'])) {
                 $id = $film['id'];
-                $EditResponse = file_get_contents("{$baseApiUrl}/getById?id={$id}");
 
-                if ($EditResponse) {
-                    $filmEdit = json_decode($EditResponse, true);
+                if ($baseApiUrl) {
+                    $filmEdit = $baseApiUrl->json();
                     $EditFilms[] = $filmEdit;
                 } else {
             }
@@ -132,7 +158,7 @@ class ApiController extends Controller
     public function showFilmEdit($id)
     {
         // Appel API pour récupérer les infos du film
-        $response = Http::get("http://localhost:8080/toad/film/getById?id={$id}");
+        $response =  Http::get("{$this->apiBaseUrl}/film/getById?id={$id}");
 
         if ($response->failed()) {
             return redirect()->back()->with('error', 'Impossible de récupérer les données du film.');
@@ -142,7 +168,7 @@ class ApiController extends Controller
         return view('filmedit', compact('film'));
     }
 
-    public function update(Request $request, $id)
+  /*  public function update(Request $request, $id)
     {
         Log::info("Requête reçue pour mise à jour du film ID: " . $id, $request->all());
 
@@ -167,7 +193,147 @@ class ApiController extends Controller
         Log::info("Mise à jour réussie pour le film ID: " . $id);
         return redirect()->route('filmedit', $id)->with('success', 'Film mis à jour avec succès.');
     }
+}*/
+
+public function update(Request $request, $id) {
+    $apiUrl =  Http::get("{$this->apiBaseUrl}/film/update/{$id}");
+
+    $queryParams = [
+        'title' => $request->input('title'),
+        'description' => $request->input('description'),
+        'releaseYear' => $request->input('releaseYear'),
+        'languageId' => $request->input('languageId', 1),
+        'originalLanguageId' => $request->input('originalLanguageId', 1),
+        'rentalDuration' => $request->input('rentalDuration'),
+        'rentalRate' => $request->input('rentalRate'),
+        'length' => $request->input('length', 0),
+        'replacementCost' => $request->input('replacementCost', 0.0),
+        'rating' => $request->input('rating', 'G'),
+        'lastUpdate' => now()->format('Y-m-d H:i:s'),
+        // 'idDirector' => $request->input('idDirector', 1),  // Commenté car pas utilisé dans l'API
+    ];
+
+    try {
+        Log::info('Requête envoyée :', ['url' => $apiUrl, 'data' => $queryParams]);
+
+        // Utilisation de `asForm()` pour envoyer les données en `x-www-form-urlencoded`
+        $response = Http::asForm()->put($apiUrl, $queryParams);
+
+        if ($response->successful()) {
+            return redirect()->route('filmedit', $id)->with('success', 'Film mis à jour avec succès.');
+        } else {
+            Log::error('Erreur API:', ['status' => $response->status(), 'body' => $response->body()]);
+            return redirect()->route('filmedit', $id)->with('error', 'Erreur lors de la mise à jour du film.');
+        }
+    } catch (\Exception $e) {
+        Log::error('Exception lors de la mise à jour:', ['message' => $e->getMessage()]);
+        return redirect()->route('filmedit', $id)->with('error', 'Erreur: ' . $e->getMessage());
+    }
 }
 
+public function showNewFilm($filmId){
+    {
+        $film = [];
+        return view('newfilm', compact('film'));
+    }
+    }
+
+public function createNewFilm() {
+        return view('newfilm'); // Vérifie que 'film_create.blade.php' existe
+    }
+
+    public function storeNewFilm(Request $request)
+    {
+        // Validation des données
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+    
+        // Appel API pour enregistrer un nouveau film
+        $response = Http::post(("{$this->apiBaseUrl}/film/store"), $validated);
+    
+        if ($response->successful()) {
+            return redirect()->route('film.index')->with('success', 'Film ajouté avec succès');
+        }
+    
+        return redirect()->back()->with('error', 'Erreur lors de l\'ajout du film');
+    }
+
+    public function showDeletePage($id)
+{
+    // Récupérer les détails du film à partir de l'API
+    $response =  Http::get("{$this->apiBaseUrl}/film/{$id}");
+    $film = $response->json();
+
+    if (!$film) {
+        return redirect()->route('films.index')->with('error', 'Film introuvable.');
+    }
+
+    return view('film.delete', compact('film'));
+}
+
+public function deleteMultipleFilms(Request $request)
+{
+    $filmIds = $request->input('film_ids');
+
+    if (!$filmIds) {
+        return back()->with('error', 'Aucun film sélectionné pour la suppression.');
+    }
+
+    try {
+        foreach ($filmIds as $id) {
+            Http::delete("{$this->apiBaseUrl}/film/delete?id={$id}");
+        }
+
+        return back()->with('success', 'Films supprimés avec succès.');
+    } catch (\Exception $e) {
+        Log::error('Erreur lors de la suppression des films', ['exception' => $e->getMessage()]);
+        return back()->with('error', 'Erreur lors de la suppression des films.');
+    }
+}
+
+public function deleteFilm($id) {
+    $apiUrl = Http::get("{$this->apiBaseUrl}/film/getById?id={$id}");
+
+    $response = ($apiUrl);
+
+    if ($response->failed()) {
+        return redirect()->route('film.index')->with('error', 'Film introuvable.');
+    }
+
+    $film = $response->json();
+
+    return view('DeleteFilm', compact('film'));
+}
+
+public function afficherInventaire($filmId)
+{
+    // Appelle l'API Spring Boot
+    $response = Http::get("http://localhost:8080/toad/inventory/getStockByStore");
+
+    if ($response->successful()) {
+        $inventaireData = collect($response->json())->where('filmId', $filmId);
+
+        if ($inventaireData->isEmpty()) {
+            return view('inventaire', [
+                'film' => ['title' => 'Film non trouvé'],
+                'inventaire' => []
+            ]);
+        }
+
+        return view('inventaire', [
+            'film' => ['title' => $inventaireData->first()['title']],
+            'inventaire' => $inventaireData->all()
+        ]);
+    } else {
+        return redirect()->back()->with('error', 'Erreur lors de la récupération des données.');
+    }
+}
+
+
+
+
+}
 
     

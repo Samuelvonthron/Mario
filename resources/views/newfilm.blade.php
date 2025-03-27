@@ -1,66 +1,102 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('NewFilm') }}
+            {{ __('Ajouter un nouveau film') }}
         </h2>
     </x-slot>
-    <div class="container mx-auto px-4 py-6">
+
+    <div class="max-w-3xl mx-auto px-4 py-6 bg-white shadow-md rounded-lg">
         <!-- Bouton Retour -->
         <div class="mb-4">
             <a href="{{ url()->previous() }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Retour</a>
         </div>
 
-        <!-- Titre -->
-        <h1 class="text-2xl font-bold mb-6">{{ $film['nom'] }}</h1>
+        <!-- Messages de succès ou d'erreur -->
+        @if(session('success'))
+            <div class="bg-green-500 text-white p-3 mb-4 rounded">{{ session('success') }}</div>
+        @endif
 
-        <!-- Table de consultation/modification -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="font-bold">Disponibilité</div>
-            <div>
-                <button class="px-4 py-2 {{ $film['disponibilite'] ? 'bg-green-500' : 'bg-red-500' }} text-white rounded">
-                    {{ $film['disponibilite'] ? 'Oui' : 'Non' }}
-                </button>
+        @if(session('error'))
+            <div class="bg-red-500 text-white p-3 mb-4 rounded">{{ session('error') }}</div>
+        @endif
+
+        <!-- Formulaire d'ajout de film -->
+        <form action="{{ route('film.store') }}" method="POST">
+            @csrf
+
+            <!-- Titre du film -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Titre</label>
+                <input type="text" name="title" value="{{ old('title') }}" class="w-full p-2 border rounded" required>
             </div>
 
-            <div class="font-bold">Client</div>
-            <div>{{ $film['client'] }}</div>
+            <!-- Description -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Description</label>
+                <textarea name="description" rows="4" class="w-full p-2 border rounded">{{ old('description') }}</textarea>
+            </div>
 
-            <div class="font-bold">Lieu de stockage</div>
-            <div>{{ $film['lieu_stockage'] }}</div>
+            <!-- Année de sortie -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Année de sortie</label>
+                <input type="number" name="releaseYear" value="{{ old('releaseYear') }}" class="w-full p-2 border rounded">
+            </div>
 
-            <div class="font-bold">Date d'emprunt</div>
-            <div>{{ $film['date_emprunt'] }}</div>
+            <!-- Réalisateur -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Réalisateur</label>
+                <input type="text" name="idDirector" value="{{ old('idDirector') }}" class="w-full p-2 border rounded">
+            </div>
 
-            <div class="font-bold">Date de rendu</div>
-            <div>{{ $film['date_rendu'] }}</div>
-        </div>
+            <!-- Durée de location -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Durée de location (jours)</label>
+                <input type="number" name="rentalDuration" value="{{ old('rentalDuration') }}" class="w-full p-2 border rounded">
+            </div>
 
-        <!-- Description -->
-        <div class="mb-6">
-            <h2 class="text-lg font-bold mb-2">Description</h2>
-            <p class="border border-gray-300 p-4 rounded">{{ $film['description'] }}</p>
-        </div>
+            <!-- Tarif de location -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Tarif de location</label>
+                <input type="number" step="0.01" name="rentalRate" value="{{ old('rentalRate') }}" class="w-full p-2 border rounded">
+            </div>
 
-        <!-- État -->
-        <div class="mb-6">
-            <h2 class="text-lg font-bold mb-2">État</h2>
-            <p class="border border-gray-300 p-4 rounded">{{ $film['etat'] }}</p>
-        </div>
+            <!-- Durée du film -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Durée (minutes)</label>
+                <input type="number" name="length" value="{{ old('length') }}" class="w-full p-2 border rounded">
+            </div>
 
-        <!-- Boutons -->
-        <div class="flex space-x-4">
-        <a 
-            href="edit/{{ ($film['filmId'])}}"
-            class="text-black border border-black px-4 py-2"
-        >
-            Modifier
-        </a>
-            
+            <!-- Coût de remplacement -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Coût de remplacement</label>
+                <input type="number" step="0.01" name="replacementCost" value="{{ old('replacementCost') }}" class="w-full p-2 border rounded">
+            </div>
+
+            <!-- Classification -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Classification</label>
+                <input type="text" name="rating" value="{{ old('rating') }}" class="w-full p-2 border rounded">
+            </div>
+
+            <!-- Fonctionnalités spéciales -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Fonctionnalités spéciales</label>
+                <input type="text" name="specialFeatures" value="{{ old('specialFeatures') }}" class="w-full p-2 border rounded">
+            </div>
+
+            <!-- Dernière mise à jour -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Dernière mise à jour</label>
+                <input type="datetime-local" name="lastUpdate" value="{{ old('lastUpdate') }}" class="w-full p-2 border rounded">
+            </div>
+
+            <!-- Boutons -->
+            <div class="flex space-x-4">
+                <button type="submit" class="text-black border border-black px-4 py-2">Ajouter le film</button>
+            </div>
+        </form>
     </div>
 </x-app-layout>
-
-
-    
 
 <style>
     body {
@@ -84,17 +120,25 @@
         padding-bottom: 10px;
     }
 
-    .detail {
+    .form-group {
         margin-bottom: 15px;
         display: flex;
-        align-items: center;
+        flex-direction: column;
         border: 1px solid black;
         padding: 8px;
+        background-color: white;
     }
 
-    .label {
+    label {
         font-weight: bold;
-        width: 200px;
+        margin-bottom: 5px;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid black;
+        border-radius: 4px;
     }
 
     .actions {

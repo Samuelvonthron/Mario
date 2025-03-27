@@ -14,8 +14,8 @@ Route::get('/', function () {
 });
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    return redirect()->route('film');
+})->middleware(['auth']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -40,14 +40,27 @@ Route::get('/detail', function () {
 Route::get('/details/{id}', [ApiController::class, 'getFilmDetails'])->name('detail');
 Route::get('/details/{id}', [ApiController::class, 'showFilmDetail'])->name('film.details');
 
-Route::get('/film/{id}', [NewFilmController::class, 'show'])->name('film.show');
+Route::get('/film/{id}', [ApiController::class, 'showNewFilm'])->name('film.show');
+Route::get('/film/create', [ApiController::class, 'createNewFilm'])->name('film.create');
+Route::post('/film', [ApiController::class, 'storeNewFilm'])->name('film.store');
 
 Route::get('/detail', function () {
     return view('detail');
 })->middleware(['auth', 'verified'])->name('detail');
 
+Route::get('/details/{id}', [ApiController::class, 'showFilmDetail'])->name('film.details');
+
 Route::get('/edit/{id}', [ApiController::class, 'getFilmEdit'])->name('edit');
 Route::get('/edit/{id}', [ApiController::class, 'showFilmEdit'])->name('film.edit');
 Route::put('/edit/{id}', [ApiController::class, 'update'])->name('film.update');
+
+Route::get('/filmedit/{id}', [ApiController::class, 'showFilmEdit'])->name('filmedit');
+
+Route::get('/film/delete/{id}', [ApiController::class, 'showDeletePage'])->name('film.delete');
+Route::get('/film/delete/{id}', [ApiController::class, 'deleteFilm'])->name('film.delete');
+
+Route::get('/films', [ApiController::class, 'getFilms'])->name('film.index');
+
+Route::get('/inventaire/{filmId}', [ApiController::class, 'afficherInventaire'])->name('film.inventaire');
 
 require __DIR__.'/auth.php';

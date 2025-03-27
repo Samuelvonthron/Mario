@@ -68,7 +68,7 @@
                                         >
                                             Modifier
                                         </a>
-            <button class="delete">Supprimer</button>
+            
             <button class="back" onclick="window.history.back();">Retour</button>
         </div>
     </div>

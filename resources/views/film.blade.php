@@ -10,28 +10,31 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <!-- Menu de recherche et filtres -->
-                    <div class="flex items-center space-x-4 mb-6">
+                    <form method="GET" action="{{ route('film') }}" class="flex items-center space-x-4 mb-6">
                         <input 
                             type="text" 
+                            name="search" 
+                            value="{{ request('search') }}"
                             placeholder="Rechercher un film..." 
                             class="border border-black px-4 py-2 w-full"
                         />
 
-                        <select class="border border-black px-4 py-2">
+                        <select name="filter" class="border border-black px-4 py-2">
                             <option value="">Filtrer par...</option>
-                            <option value="genre">Genre</option>
-                            <option value="epoque">Époque</option>
-                            <option value="realisatrice">Réalisatrice</option>
+                            <option value="genre" {{ request('filter') == 'genre' ? 'selected' : '' }}>Genre</option>
+                            <option value="epoque" {{ request('filter') == 'epoque' ? 'selected' : '' }}>Époque</option>
+                            <option value="realisatrice" {{ request('filter') == 'realisatrice' ? 'selected' : '' }}>Réalisatrice</option>
                         </select>
 
-                        <button class="border border-black bg-white px-4 py-2">Location</button>
-                    </div>
+                        <button type="submit" class="border border-black bg-white px-4 py-2">Rechercher</button>
+                    </form>
+
 
                     <!-- Bouton Ajouter un nouveau film -->
                     <div class="flex justify-end mb-6">
-                        <button class="border border-black bg-white px-6 py-2">
+                        <a href="{{ route('film.create') }}" class="border border-black bg-white px-6 py-2">
                             Ajouter un nouveau film
-                        </button>
+                        </a>
                     </div>
 
                     <!-- Liste des films -->
@@ -50,11 +53,21 @@
                                         >
                                             Détails
                                         </a>
+                                        <a href="{{ route('film.delete', ['id' => $film['filmId']]) }}" 
+                                            class="text-black border border-black px-4 py-2">
+                                            Supprimer
+                                        </a>
+
                                         <a 
                                             href="edit/{{ ($film['filmId'])}}"
                                             class="text-black border border-black px-4 py-2"
                                         >
                                             Modifier
+                                        </a>
+
+                                        <a href="{{ route('film.inventaire', ['filmId' => $film['filmId']]) }}" 
+                                            class="text-black border border-black px-4 py-2">
+                                            Inventaire
                                         </a>
                                     </div>
                                 </div>
