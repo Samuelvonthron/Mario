@@ -10,32 +10,14 @@ use App\Http\Controllers\FilmController;
 use Spatie\FlareClient\Api;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login_staff');
 });
+Route::post('/login_staff', [ApiController::class, 'login'])->name('login_staff');
 
-Route::get('/dashboard', function () {
-    return redirect()->route('film');
-})->middleware(['auth']);
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-Route::resource('chirps', ChirpController::class)
-    ->only(['index', 'store', 'edit', 'update', 'destroy'])
-    ->middleware(['auth', 'verified']);
-
-Route::get('/film', function () {
-    return view('film');
-})->middleware(['auth', 'verified'])->name('film');
 
 Route::get('/film', [ApiController::class, 'getFilms'])->name('film');
 
-Route::get('/detail', function () {
-    return view('detail');
-})->middleware(['auth', 'verified'])->name('detail');
 
 Route::get('/details/{id}', [ApiController::class, 'getFilmDetails'])->name('detail');
 Route::get('/details/{id}', [ApiController::class, 'showFilmDetail'])->name('film.details');
@@ -44,9 +26,6 @@ Route::get('/film/{id}', [ApiController::class, 'showNewFilm'])->name('film.show
 Route::get('/film/create', [ApiController::class, 'createNewFilm'])->name('film.create');
 Route::post('/film', [ApiController::class, 'storeNewFilm'])->name('film.store');
 
-Route::get('/detail', function () {
-    return view('detail');
-})->middleware(['auth', 'verified'])->name('detail');
 
 Route::get('/details/{id}', [ApiController::class, 'showFilmDetail'])->name('film.details');
 
@@ -63,4 +42,3 @@ Route::get('/films', [ApiController::class, 'getFilms'])->name('film.index');
 
 Route::get('/inventaire/{filmId}', [ApiController::class, 'afficherInventaire'])->name('film.inventaire');
 
-require __DIR__.'/auth.php';
