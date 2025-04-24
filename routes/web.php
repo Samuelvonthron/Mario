@@ -42,3 +42,4 @@ Route::get('/films', [ApiController::class, 'getFilms'])->name('film.index');
 
 Route::get('/inventaire/{filmId}', [ApiController::class, 'afficherInventaire'])->name('film.inventaire');
 
+Route::post('/inventaire/update', [ApiController::class, 'updateIventory'])->name('inventaire.update');

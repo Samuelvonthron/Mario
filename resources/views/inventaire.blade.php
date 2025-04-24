@@ -25,6 +25,21 @@
                                         <td class="border border-gray-800 px-4 py-2">{{ $item['district'] }}</td>
                                         <td class="border border-gray-800 px-4 py-2 text-center">{{ $item['quantity'] }}</td>
                                     </tr>
+                                    <td class="border border-gray-800 px-4 py-2 text-center">
+                                        {{ $item['quantity'] }}
+
+                                        <form action="{{ route('inventaire.update') }}" method="POST" class="inline-block mt-2">
+                                            @csrf
+                                            <input type="hidden" name="store_id" value="{{ $item['store_id'] }}">
+                                            <input type="hidden" name="film_id" value="{{ $film['film_id'] }}">
+
+                                            <button name="action" value="add_1" class="px-2 text-green-600">➕1</button>
+                                            <button name="action" value="add_10" class="px-2 text-green-600">➕10</button>
+                                            <button name="action" value="remove_1" class="px-2 text-red-600">➖1</button>
+                                            <button name="action" value="remove_10" class="px-2 text-red-600">➖10</button>
+                                        </form>
+                                    </td>
+
                                 @endforeach
                             </tbody>
                         </table>

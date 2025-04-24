@@ -381,8 +381,27 @@ public function afficherInventaire($filmId)
     }
 }
 
+public function updateIventory(Request $request)
+{
+    $storeId = $request->input('store_id');
+    $filmId = $request->input('film_id');
+    $action = $request->input('action');
+
+    $inventory = Inventory::where('store_id', $storeId)->where('film_id', $filmId)->first();
+
+    $storeId = $request->input('store_id');
+    $filmId = $request->input('film_id');
+    $action = $request->input('action');
+
+    // Récupération de la quantité actuelle
+    $row = DB::table('inventory')
+        ->where('store_id', $storeId)
+        ->where('film_id', $filmId)
+        ->first();
 
 
+
+}
 
 }
 
