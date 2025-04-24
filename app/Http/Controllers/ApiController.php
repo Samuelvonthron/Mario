@@ -15,7 +15,7 @@ class ApiController extends Controller
 
     public function __construct()
     {
-        $this->apiBaseUrl = env('API_BASE_URL');
+        $this->apiBaseUrl = env('TOAD_SERVER') . ':' . env('TOAD_PORT') . env('TOAD_PATH');
     }
 
     public function getFilms(Request $request)
