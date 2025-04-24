@@ -25,7 +25,7 @@
                                         <td class="border border-gray-800 px-4 py-2">{{ $item['district'] }}</td>
                                         <td class="border border-gray-800 px-4 py-2 text-center">{{ $item['quantity'] }}</td>
                                     </tr>
-                                    <td class="border border-gray-800 px-4 py-2 text-center">
+                                    <!-- <td class="border border-gray-800 px-4 py-2 text-center">
                                         {{ $item['quantity'] }}
 
                                         <form action="{{ route('inventaire.update') }}" method="POST" class="inline-block mt-2">
@@ -38,7 +38,7 @@
                                             <button name="action" value="remove_1" class="px-2 text-red-600">➖1</button>
                                             <button name="action" value="remove_10" class="px-2 text-red-600">➖10</button>
                                         </form>
-                                    </td>
+                                    </td> -->
 
                                 @endforeach
                             </tbody>

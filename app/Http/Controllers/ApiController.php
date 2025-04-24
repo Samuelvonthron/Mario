@@ -381,28 +381,40 @@ public function afficherInventaire($filmId)
     }
 }
 
-public function updateIventory(Request $request)
-{
-    $storeId = $request->input('store_id');
-    $filmId = $request->input('film_id');
-    $action = $request->input('action');
-
-    $inventory = Inventory::where('store_id', $storeId)->where('film_id', $filmId)->first();
-
-    $storeId = $request->input('store_id');
-    $filmId = $request->input('film_id');
-    $action = $request->input('action');
-
-    // Récupération de la quantité actuelle
-    $row = DB::table('inventory')
-        ->where('store_id', $storeId)
-        ->where('film_id', $filmId)
-        ->first();
-
-
-
-}
-
+// public function updateIventory(Request $request)
+// {
+//     {
+//         $storeId = $request->input('store_id');
+//         $filmId = $request->input('film_id');
+//         $action = $request->input('action');
+    
+//         // Valeur à modifier
+//         $amount = match ($action) {
+//             'add_1' => 1,
+//             'add_10' => 10,
+//             'remove_1' => -1,
+//             'remove_10' => -10,
+//             default => 0,
+//         };
+    
+//         if ($amount === 0) {
+//             return back()->with('error', 'Action invalide.');
+//         }
+    
+//         // Appel de l’API pour mettre à jour le stock
+//         $response = Http::put("http://localhost:8080/toad/inventory/updateStock", [
+//             'store_id' => $storeId,
+//             'film_id' => $filmId,
+//             'quantity_change' => $amount,
+//         ]);
+    
+//         if ($response->successful()) {
+//             return back()->with('success', 'Stock mis à jour.');
+//         } else {
+//             return back()->with('error', 'Erreur lors de la mise à jour du stock.');
+//         }
+//     }
+// }
 }
 
     
