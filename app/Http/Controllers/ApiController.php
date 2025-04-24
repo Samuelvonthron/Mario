@@ -73,7 +73,7 @@ public function login(Request $request)
     $email = $request->input('email');
     $password = $request->input('password');
 
-    $apiUrl = "http://127.0.0.1:8080/toad/staff/getByEmail?email=" . urlencode($email);
+    $apiUrl = "{$this->apiBaseUrl}/staff/getByEmail?email=" . urlencode($email);
 
     try {
         // Utilisation de Guzzle pour faire la requête GET
@@ -233,7 +233,7 @@ public function login(Request $request)
             'etat' => 'nullable|string',
         ]);
 
-        $response = Http::put("http://localhost:8080/toad/film/update/{$id}", $validatedData);
+        $response = Http::put("{$this->apiBaseUrl}/film/update/{$id}", $validatedData);
 
         if ($response->failed()) {
             Log::error("Échec de mise à jour du film ID: " . $id, ['response' => $response->body()]);
@@ -360,7 +360,7 @@ public function deleteFilm($id) {
 public function afficherInventaire($filmId)
 {
     // Appelle l'API Spring Boot
-    $response = Http::get("http://localhost:8080/toad/inventory/getStockByStore");
+    $response = Http::get("{$this->apiBaseUrl}/inventory/getStockByStore");
 
     if ($response->successful()) {
         $inventaireData = collect($response->json())->where('filmId', $filmId);
@@ -402,7 +402,7 @@ public function afficherInventaire($filmId)
 //         }
     
 //         // Appel de l’API pour mettre à jour le stock
-//         $response = Http::put("http://localhost:8080/toad/inventory/updateStock", [
+//         $response = Http::put("{$this->apiBaseUrl}/inventory/updateStock", [
 //             'store_id' => $storeId,
 //             'film_id' => $filmId,
 //             'quantity_change' => $amount,
